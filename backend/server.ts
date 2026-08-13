@@ -4,6 +4,7 @@ import cors from 'cors';
 import express from 'express';
 
 import { gameRouter } from './routes/game.routes';
+import { playerRouter } from './routes/player.routes';
 import { errorMiddleware } from './middleware/error.middleware';
 
 const app = express();
@@ -17,6 +18,7 @@ app.get('/health', (_request, response) => {
 });
 
 app.use('/api/game', gameRouter);
+app.use('/api/player', playerRouter);
 
 app.use(errorMiddleware);
 
