@@ -23,25 +23,28 @@ export function UsernameForm({ onSubmit }: UsernameFormProps) {
 
 	return (
 		<main className="page-shell">
-			<section className="card onboarding-card" aria-labelledby="streak-title">
-				<p className="eyebrow">DAILY MYSTERY WORD</p>
-				<h1 id="streak-title">STREAK</h1>
-				<p className="subtitle">Your daily challenge</p>
+			<section className="card onboarding-card" aria-labelledby="onboarding-title">
+				<div className="card-header text-center">
+					<p className="eyebrow gold-eyebrow">DAILY MYSTERY WORD</p>
+					<h1 id="onboarding-title" className="brand-title">STREAK</h1>
+					<p className="brand-subtitle">One puzzle. One guess. Every day.</p>
+				</div>
 				<form className="username-form" noValidate onSubmit={handleSubmit}>
-					<label htmlFor="username">Enter your username</label>
+					<label htmlFor="username-input" className="form-label">Enter your username</label>
 					<input
-						id="username"
+						id="username-input"
 						name="username"
 						type="text"
 						maxLength={MAX_USERNAME_LENGTH}
 						autoComplete="username"
 						required
 						autoFocus
+						placeholder="e.g. alex99"
 						value={username}
 						onChange={(event) => setUsername(event.target.value)}
 					/>
-					<p className="form-error" role="alert">{error}</p>
-					<button type="submit">Start playing</button>
+					{error && <p className="form-error" role="alert">{error}</p>}
+					<button type="submit" className="submit-button">Start playing</button>
 				</form>
 			</section>
 		</main>

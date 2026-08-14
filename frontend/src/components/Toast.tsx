@@ -18,11 +18,14 @@ export function Toast({ message, onClose, duration = 3500 }: ToastProps) {
 	}, [onClose, duration]);
 
 	return (
-		<div className="toast-container" role="status" aria-live="assertive">
-			<div className="toast-message">
-				<span className="toast-icon">⚠️</span>
-				<span>{message}</span>
+		<aside className="toast-container" role="status" aria-live="assertive">
+			<div className="toast-card">
+				<span className="toast-icon" aria-hidden="true">⚠️</span>
+				<p className="toast-text">{message}</p>
+				<button type="button" className="toast-close" onClick={onClose} aria-label="Close notification">
+					✕
+				</button>
 			</div>
-		</div>
+		</aside>
 	);
 }

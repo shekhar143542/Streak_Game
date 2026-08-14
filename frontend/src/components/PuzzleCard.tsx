@@ -15,10 +15,10 @@ function formatPuzzleDate(date: string): string {
 
 export function PuzzleCard({ puzzle }: PuzzleCardProps) {
 	return (
-		<section className="puzzle" aria-labelledby="puzzle-title">
+		<section className="card puzzle-card" aria-labelledby="puzzle-title">
 			<p className="eyebrow">TODAY’S PUZZLE</p>
-			<h2 id="puzzle-title">{puzzle.question}</h2>
-			<p className="puzzle-date">Date: {formatPuzzleDate(puzzle.date)}</p>
+			<h2 id="puzzle-title" className="puzzle-question">{puzzle.question}</h2>
+			<p className="puzzle-date">{formatPuzzleDate(puzzle.date)}</p>
 		</section>
 	);
 }

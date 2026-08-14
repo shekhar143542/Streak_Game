@@ -7,22 +7,35 @@ type ResultMessageProps = {
 
 export function ResultMessage({ result, alreadyPlayed = false }: ResultMessageProps) {
 	if (result) {
+		const isCorrect = result.correct;
+
 		return (
 			<section
-				className={`result-message ${result.correct ? "result-correct celebration-pop" : "result-wrong result-shake"}`}
+				className={`card result-card ${isCorrect ? "result-correct celebration-pop" : "result-wrong result-shake"}`}
 				aria-live="polite"
+				aria-label={isCorrect ? "Guess Correct" : "Guess Wrong"}
 			>
-				{result.correct && <div className="celebration-badge">🎉 Correct!</div>}
-				{!result.correct && <div className="wrong-badge">❌ Wrong!</div>}
-				<p className="result-detail">Answer: <strong>{result.answer}</strong></p>
-				<p className="result-streak">🔥 Streak: {result.streak}</p>
-				<p className="result-note">Come back tomorrow!</p>
+				<div className="result-icon-wrap" aria-hidden="true">
+					{isCorrect ? <span className="result-icon gold-sparkle">✨</span> : <span className="result-icon red-cross">❌</span>}
+				</div>
+				<h2 className="result-title">{isCorrect ? "CORRECT!" : "WRONG"}</h2>
+				<p className="result-answer">
+					Answer: <strong>{result.answer}</strong>
+				</p>
+				<p className="result-streak-badge">
+					🔥 {result.streak} DAY STREAK
+				</p>
+				<p className="result-footer">Come back tomorrow.</p>
 			</section>
 		);
 	}
 
 	if (alreadyPlayed) {
-		return <p className="played-message">You’ve already played today. Come back tomorrow!</p>;
+		return (
+			<section className="card result-card result-played" aria-live="polite">
+				<p className="played-message">You’ve already played today. Come back tomorrow.</p>
+			</section>
+		);
 	}
 
 	return null;
