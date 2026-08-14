@@ -93,6 +93,7 @@ input {
 	border-radius: 10px;
 	color: inherit;
 	background: #0d1422;
+	transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 input:focus {
@@ -107,10 +108,15 @@ button {
 	color: #07111f;
 	font-weight: 800;
 	background: #8db6ff;
+	transition: background-color 0.2s ease, transform 0.1s ease;
 }
 
-button:hover {
+button:hover:not(:disabled) {
 	background: #b9d0ff;
+}
+
+button:active:not(:disabled) {
+	transform: scale(0.98);
 }
 
 .form-error {
@@ -151,6 +157,7 @@ button:hover {
 	margin: 20px 0 8px;
 	font-size: clamp(1.4rem, 5vw, 2rem);
 	font-weight: 800;
+	transition: transform 0.3s ease;
 }
 
 .last-played {
@@ -175,7 +182,7 @@ button:hover {
 
 .coming-soon,
 .played-message {
-	margin: 28px 0 0;
+	margin: 24px 0 0;
 	padding: 16px;
 	border-radius: 12px;
 }
@@ -186,9 +193,11 @@ button:hover {
 }
 
 .played-message {
-	color: #b9f1c2;
-	background: #173824;
+	color: #93e2a5;
+	background: rgb(23 56 36 / 75%);
+	border: 1px solid #2e6642;
 	font-weight: 700;
+	text-align: center;
 }
 
 .status-card {
@@ -205,31 +214,166 @@ button:hover {
 button:disabled,
 input:disabled {
 	cursor: not-allowed;
-	opacity: 0.65;
+	opacity: 0.6;
 }
+
+/* ==================================================
+   RESULT MESSAGES & CELEBRATION ANIMATIONS
+================================================== */
 
 .result-message {
-	margin-top: 28px;
-	padding: 20px;
-	border-radius: 12px;
+	margin-top: 24px;
+	padding: 24px;
+	border-radius: 16px;
+	text-align: center;
 }
 
-.result-message h2 {
-	margin-bottom: 14px;
+.celebration-badge,
+.wrong-badge {
+	font-size: clamp(1.5rem, 5vw, 2rem);
+	font-weight: 900;
+	margin-bottom: 16px;
 }
 
-.result-message p:last-child {
+.celebration-badge {
+	color: #a7f3d0;
+	letter-spacing: 0.02em;
+}
+
+.wrong-badge {
+	color: #fca5a5;
+	letter-spacing: 0.02em;
+}
+
+.result-detail {
+	font-size: 1.1rem;
+	margin-bottom: 10px;
+}
+
+.result-detail strong {
+	color: #ffffff;
+	text-decoration: underline;
+	text-underline-offset: 3px;
+}
+
+.result-streak {
+	font-size: 1.25rem;
+	font-weight: 800;
+	margin-bottom: 10px;
+}
+
+.result-note {
+	color: #b8c2d9;
+	font-size: 0.95rem;
 	margin-bottom: 0;
 }
 
 .result-correct {
-	color: #b9f1c2;
-	background: #173824;
+	color: #d1fae5;
+	background: linear-gradient(135deg, rgb(16 68 43 / 85%), rgb(23 56 36 / 95%));
+	border: 1px solid #10b981;
+	box-shadow: 0 8px 32px rgb(16 185 129 / 15%);
 }
 
 .result-wrong {
-	color: #ffe1dd;
-	background: #482221;
+	color: #fee2e2;
+	background: linear-gradient(135deg, rgb(80 25 24 / 85%), rgb(60 20 20 / 95%));
+	border: 1px solid #ef4444;
+	box-shadow: 0 8px 32px rgb(239 68 68 / 15%);
+}
+
+@keyframes celebrationPop {
+	0% {
+		opacity: 0;
+		transform: scale(0.92) translateY(10px);
+	}
+	60% {
+		transform: scale(1.03) translateY(-2px);
+	}
+	100% {
+		opacity: 1;
+		transform: scale(1) translateY(0);
+	}
+}
+
+.celebration-pop {
+	animation: celebrationPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes resultShake {
+	0% {
+		opacity: 0;
+		transform: translateY(8px);
+	}
+	20% {
+		opacity: 1;
+		transform: translateX(-6px);
+	}
+	40% {
+		transform: translateX(6px);
+	}
+	60% {
+		transform: translateX(-4px);
+	}
+	80% {
+		transform: translateX(4px);
+	}
+	100% {
+		opacity: 1;
+		transform: translateX(0);
+	}
+}
+
+.result-shake {
+	animation: resultShake 0.5s ease-out forwards;
+}
+
+/* ==================================================
+   TOAST NOTIFICATION (409 DUPLICATE)
+================================================== */
+
+.toast-container {
+	position: fixed;
+	top: 24px;
+	left: 50%;
+	transform: translateX(-50%);
+	z-index: 1000;
+	display: flex;
+	justify-content: center;
+	width: min(90vw, 480px);
+	pointer-events: none;
+	animation: toastSlideDown 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.toast-message {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 14px 20px;
+	border-radius: 12px;
+	background: rgb(30 41 59 / 95%);
+	border: 1px solid #f59e0b;
+	color: #fef3c7;
+	font-weight: 700;
+	font-size: 0.95rem;
+	box-shadow: 0 12px 36px rgb(0 0 0 / 45%), 0 0 15px rgb(245 158 11 / 20%);
+	backdrop-filter: blur(8px);
+	pointer-events: auto;
+}
+
+.toast-icon {
+	font-size: 1.2rem;
+}
+
+@keyframes toastSlideDown {
+	from {
+		opacity: 0;
+		transform: translate(-50%, -20px) scale(0.95);
+	}
+	to {
+		opacity: 1;
+		transform: translate(-50%, 0) scale(1);
+	}
 }
 
 @media (max-width: 520px) {

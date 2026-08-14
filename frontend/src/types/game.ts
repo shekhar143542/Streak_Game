@@ -12,7 +12,7 @@ export type PlayerStatus = {
 
 export type GuessRequest = {
 	username: string;
-	guess: string;
+	guess: string; 
 };
 
 export type GuessResponse = {

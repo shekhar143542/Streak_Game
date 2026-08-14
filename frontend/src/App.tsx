@@ -5,6 +5,7 @@ import { getTodayPuzzle, submitGuess } from "./api/gameApi";
 import { getPlayer } from "./api/playerApi";
 import { GameScreen } from "./components/GameScreen";
 import { LoadingState } from "./components/LoadingState";
+import { Toast } from "./components/Toast";
 import { UsernameForm } from "./components/UsernameForm";
 import type { GuessResponse, PlayerStatus, TodayPuzzle } from "./types/game";
 
@@ -48,7 +49,7 @@ export function App() {
 	const [errorMessage, setErrorMessage] = useState("");
 	const [reloadKey, setReloadKey] = useState(0);
 	const [guessResult, setGuessResult] = useState<GuessResponse | null>(null);
-	const [alreadyPlayed, setAlreadyPlayed] = useState(false);
+	const [toastMessage, setToastMessage] = useState<string | null>(null);
 
 	useEffect(() => {
 		if (!username) {
@@ -60,7 +61,7 @@ export function App() {
 		setHasError(false);
 		setErrorMessage("");
 		setGuessResult(null);
-		setAlreadyPlayed(false);
+		setToastMessage(null);
 
 		void Promise.all([getPlayer(username), getTodayPuzzle()])
 			.then(([storedPlayer, todayPuzzle]) => {
@@ -114,7 +115,7 @@ export function App() {
 		setHasError(false);
 		setErrorMessage("");
 		setGuessResult(null);
-		setAlreadyPlayed(false);
+		setToastMessage(null);
 	}
 
 	function handleRetry(): void {
@@ -146,7 +147,7 @@ export function App() {
 		} catch (error) {
 			if (error instanceof ApiError) {
 				if (error.status === 409) {
-					setAlreadyPlayed(true);
+					setToastMessage("You've already played today! Come back tomorrow.");
 					setPlayer((currentPlayer) => currentPlayer && { ...currentPlayer, hasPlayedToday: true });
 					return null;
 				}
@@ -177,14 +178,19 @@ export function App() {
 	}
 
 	return (
-		<GameScreen
-			username={username}
-			player={player}
-			puzzle={puzzle}
-			onChangeUsername={handleChangeUsername}
-			result={guessResult}
-			alreadyPlayed={alreadyPlayed || player.hasPlayedToday}
-			onSubmitGuess={handleGuessSubmit}
-		/>
+		<>
+			{toastMessage && (
+				<Toast message={toastMessage} onClose={() => setToastMessage(null)} />
+			)}
+			<GameScreen
+				username={username}
+				player={player}
+				puzzle={puzzle}
+				onChangeUsername={handleChangeUsername}
+				result={guessResult}
+				alreadyPlayed={player.hasPlayedToday}
+				onSubmitGuess={handleGuessSubmit}
+			/>
+		</>
 	);
 }

@@ -24,6 +24,8 @@ function formatPuzzleDate(date: string): string {
 }
 
 export function GameScreen({ username, player, puzzle, onChangeUsername, result, alreadyPlayed, onSubmitGuess }: GameScreenProps) {
+	const isFrozen = Boolean(result || alreadyPlayed);
+
 	return (
 		<main className="page-shell">
 			<section className="card game-card" aria-labelledby="game-title">
@@ -38,9 +40,10 @@ export function GameScreen({ username, player, puzzle, onChangeUsername, result,
 				<StreakDisplay streak={player.currentStreak} />
 				{player.lastPlayedDate && <p className="last-played">Last played: {formatPuzzleDate(player.lastPlayedDate)}</p>}
 				<PuzzleCard puzzle={puzzle} />
-				{result || alreadyPlayed
-					? <ResultMessage result={result ?? undefined} alreadyPlayed={alreadyPlayed && !result} />
-					: <GuessForm onSubmit={onSubmitGuess} />}
+				<GuessForm onSubmit={onSubmitGuess} disabled={isFrozen} />
+				{(result || alreadyPlayed) && (
+					<ResultMessage result={result} alreadyPlayed={alreadyPlayed && !result} />
+				)}
 			</section>
 		</main>
 	);

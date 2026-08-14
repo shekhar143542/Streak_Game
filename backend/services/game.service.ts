@@ -106,39 +106,49 @@ export async function submitGuess(
 		}
 
 		const correct = guess.toLowerCase() === puzzle.answer.trim().toLowerCase();
-		const queryResult = await database.execute<{ streak: number }>(sql`
-			WITH target_player AS (
-				INSERT INTO players (username)
-				VALUES (${username})
-				ON CONFLICT (username) DO UPDATE SET username = EXCLUDED.username
-				RETURNING id
-			), saved_guess AS (
-				INSERT INTO guesses (player_id, puzzle_id, submitted_guess, is_correct)
-				SELECT id, ${puzzle.id}, ${guess}, ${correct}
-				FROM target_player
-				ON CONFLICT (player_id, puzzle_id) DO NOTHING
-				RETURNING player_id
-			), updated_player AS (
-				UPDATE players
-				SET
-					current_streak = CASE
-						WHEN ${correct} THEN CASE
-							WHEN last_played_date = ${yesterday} THEN current_streak + 1
-							ELSE 1
-						END
-						ELSE 0
-					END,
-					last_played_date = ${today}
-				FROM saved_guess
-				WHERE players.id = saved_guess.player_id
-				RETURNING players.current_streak AS streak
-			)
-			SELECT streak FROM updated_player
+
+		const playerQueryResult = await database.execute<{ id: number }>(sql`
+			INSERT INTO players (username)
+			VALUES (${username})
+			ON CONFLICT (username) DO UPDATE SET username = EXCLUDED.username
+			RETURNING id
 		`);
-		const [result] = queryResult.rows;
+		const playerId = playerQueryResult.rows[0]?.id;
+
+		if (!playerId) {
+			throw new HttpError(500, "Unable to find player.");
+		}
+
+		const guessQueryResult = await database.execute<{ id: number }>(sql`
+			INSERT INTO guesses (player_id, puzzle_id, submitted_guess, is_correct)
+			VALUES (${playerId}, ${puzzle.id}, ${guess}, ${correct})
+			ON CONFLICT (player_id, puzzle_id) DO NOTHING
+			RETURNING id
+		`);
+		const insertedGuess = guessQueryResult.rows[0];
+
+		if (!insertedGuess) {
+			throw new HttpError(409, "You have already played today.");
+		}
+
+		const updateResult = await database.execute<{ streak: number }>(sql`
+			UPDATE players
+			SET
+				current_streak = CASE
+					WHEN ${correct} THEN CASE
+						WHEN last_played_date = ${yesterday} THEN current_streak + 1
+						ELSE 1
+					END
+					ELSE 0
+				END,
+				last_played_date = ${today}
+			WHERE players.id = ${playerId}
+			RETURNING players.current_streak AS streak
+		`);
+		const [result] = updateResult.rows;
 
 		if (!result) {
-			throw new HttpError(409, "You have already played today.");
+			throw new HttpError(500, "Unable to update player streak.");
 		}
 
 		return {
